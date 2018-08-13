@@ -43,7 +43,7 @@ mesh = BoxMesh(Point(0,0,0), Point(1,1,1), mr,mr,mr)
 
 def alpha(gamma):
 	return alphamin+(alphamax-alphamin)*alpha_q*(1.0-gamma)/(alpha_q+gamma)
-
+eps = 1e-6
 class Gamma0(SubDomain):
     def inside(self, x, on_boundary):
         return on_boundary
@@ -69,8 +69,8 @@ Gamma3().mark(boundary_markers, 3) # outlet facets01
 Gamma4().mark(boundary_markers, 4) # outlet facets02
 
 # Inlet velocity
-u_in1 = Expression("4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.8,2))",u0=u0,degree=2)
-u_in2 = Expression("4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.2,2))",u0=u0,degree=2)
+u_in1 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.8,2))"),u0=u0,degree=2)
+u_in2 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.2,2))"),u0=u0,degree=2)
 
 
 # Function Space
