@@ -39,8 +39,7 @@ mr = 10
 mesh = BoxMesh(Point(0,0,0), Point(1,1,1), mr,mr,mr)
 
 
-gamma = Function(Q)
-gamma.vector()[:] = volfrac
+
 
 def alpha(gamma):
 	return alphamin+(alphamax-alphamin)*alpha_q*(1.0-gamma)/(alpha_q+gamma)
@@ -81,6 +80,10 @@ V_ele = VectorElement('CG', mesh.ufl_cell(), 2)
 Q_ele = FiniteElement('CG', mesh.ufl_cell(), 1)
 W_ele = V_ele*Q_ele
 W = FunctionSpace(mesh, W_ele)
+
+
+gamma = Function(Q)
+gamma.vector()[:] = volfrac
 
 # Apply bc
 bc0 = DirichletBC(W.sub(0), (0.0, 0.0, 0.0), boundary_markers, 0)
