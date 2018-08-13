@@ -11,11 +11,14 @@ from mpi4py import MPI
 
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=
                                  argparse.ArgumentDefaultsHelpFormatter)
-
+parser.add_argument("--nu", type=float, dest="viscosity", default=1.0,
+                    help="kinematic viscosity")
 parser.add_argument("--pcd", type=str, dest="pcd_variant", default="BRM1",
                     choices=["BRM1", "BRM2"], help="PCD variant")
 parser.add_argument("--nls", type=str, dest="nls", default="picard",
                     choices=["picard", "newton"], help="nonlinear solver")
+parser.add_argument("--ls", type=str, dest="ls", default="iterative",
+                    choices=["direct", "iterative"], help="linear solvers")
 args = parser.parse_args(sys.argv[1:])
 
 
@@ -25,12 +28,12 @@ root = 0
 
 
 Da = 1e-4
-mu = 1.
+nu = Constant(args.viscosity)
 Re = 20.#180.
 l = 0.2#
 rho = 1.#
-u0 = mu*Re/l/rho
-alphamax = mu/Da/l**2#
+u0 = nu*Re/l/rho
+alphamax = nu/Da/l**2#
 alphamin = 0.
 alpha_q = 0.1
 volfrac = 0.31
