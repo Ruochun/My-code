@@ -113,11 +113,11 @@ u_, p_ = split(w)
 
 
 F = (
-      alpha(gamma)*inner(u, v)
-    + nu*inner(grad(u), grad(v))
-    + inner(dot(grad(u), u), v)
-    - p*div(v)
-    - q*div(u)
+      alpha(gamma)*inner(u_, v)
+    + nu*inner(grad(u_), grad(v))
+    + inner(dot(grad(u_), u_), v)
+    - p_*div(v)
+    - q*div(u_)
 )*dx
 
 J = (
