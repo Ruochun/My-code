@@ -38,7 +38,7 @@ alphamin = 0.
 alpha_q = 0.1
 volfrac = 0.31
 
-parameter['form_compiler']['quadrature_degree'] = 3
+parameters['form_compiler']['quadrature_degree'] = 3
 mr = 10
 mesh = BoxMesh(Point(0,0,0), Point(1,1,1), mr,mr,mr)
 
@@ -73,8 +73,8 @@ Gamma3().mark(boundary_markers, 3) # outlet facets01
 Gamma4().mark(boundary_markers, 4) # outlet facets02
 
 # Inlet velocity
-u_in1 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.8,2))"),u0=u0,degree=2)
-u_in2 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.2,2))"),u0=u0,degree=2)
+u_in1 = Expression("4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.8,2))",u0=u0,degree=2)
+u_in2 = Expression("4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.2,2))",u0=u0,degree=2)
 
 
 # Function Space
@@ -91,8 +91,8 @@ gamma.vector()[:] = volfrac
 
 # Apply bc
 bc0 = DirichletBC(W.sub(0), (0.0, 0.0, 0.0), boundary_markers, 0)
-bc1 = DirichletBC(W.sub(0), u_in1, boundary_markers, 1)
-bc2 = DirichletBC(W.sub(0), u_in2, boundary_markers, 2)
+bc1 = DirichletBC(W.sub(0).sub(2), u_in1, boundary_markers, 1)
+bc2 = DirichletBC(W.sub(0).sub(2), u_in2, boundary_markers, 2)
 bc3 = DirichletBC(W.sub(1), 0.0, boundary_markers, 3)
 bc4 = DirichletBC(W.sub(1), 0.0, boundary_markers, 4)
 
