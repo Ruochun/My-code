@@ -115,7 +115,7 @@ u_, p_ = split(w)
 F = (
       alpha(gamma)*inner(u, v)
     + nu*inner(grad(u), grad(v))
-    + inner(dot(grad(u), u_), v)
+    + inner(dot(grad(u), u), v)
     - p*div(v)
     - q*div(u)
 )*dx
