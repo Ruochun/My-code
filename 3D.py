@@ -38,6 +38,7 @@ alphamin = 0.
 alpha_q = 0.1
 volfrac = 0.31
 
+parameter['form_compiler']['quadrature_degree'] = 3
 mr = 10
 mesh = BoxMesh(Point(0,0,0), Point(1,1,1), mr,mr,mr)
 
@@ -77,9 +78,9 @@ u_in2 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.2,
 
 
 # Function Space
-V = VectorFunctionSpace(mesh, "CG", 2)
+V = VectorFunctionSpace(mesh, "CG", 1)
 Q = FunctionSpace(mesh, "CG", 1)
-V_ele = VectorElement('CG', mesh.ufl_cell(), 2)
+V_ele = VectorElement('CG', mesh.ufl_cell(), 1)
 Q_ele = FiniteElement('CG', mesh.ufl_cell(), 1)
 W_ele = V_ele*Q_ele
 W = FunctionSpace(mesh, W_ele)
@@ -110,6 +111,7 @@ w0 = Function(W)
 u_, p_ = split(w)
 u0_, p0_ = split(w0)
 
+h = CellDiameter(mesh)
 F = (
       alpha(gamma)*inner(u_, v)
     + nu*inner(grad(u_), grad(v))
@@ -118,24 +120,14 @@ F = (
     - q*div(u_)
 )*dx
 
-# Jacobian
-if args.nls == "picard":
-    J = (
-          alpha(gamma)*inner(u, v)
-        + nu*inner(grad(u), grad(v))
-        + inner(dot(grad(u), u_), v)
-        - p*div(v)
-        - q*div(u)
-    )*dx
-elif args.nls == "newton":
-    J = derivative(F, w)
+vnorm = sqrt(dot(u_,u_))
+tau_supg = ( (2.0*vnorm/h)**2 + 9*(4.0*nu/h**2)**2 )**(-0.5)
+tau_pspg = h**2/2#tau_supg#
+tau_lsic = vnorm*h/2
+res = grad(u)*u_+grad(p)-div(nu*grad(u))
 
-# Add stabilization for AMG 00-block
-if args.ls == "iterative":
-    delta = StabilizationParameterSD(w.sub(0), nu)
-    J_pc = J + delta*inner(dot(grad(u), u_), dot(grad(v), u_))*dx
-elif args.ls == "direct":
-    J_pc = None
+
+
 
 
 #mu = alpha(gamma)*inner(u, v)*dx
@@ -150,8 +142,8 @@ if args.pcd_variant == "BRM2":
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)+Constant(1.0/nu)*dot(u_, n)*p*q*ds(2)
     #kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(0)  # TODO: Is this beneficial?
 
-pcd_assembler = PCDAssembler(J, F, [bc0, bc1, bc2, bc3, bc4],
-                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=[bc_pcd1, bc_pcd2])
+pcd_assembler = PCDAssembler(F, L, [bc0, bc1, bc2, bc3, bc4],
+                             ap=ap, kp=kp, mp=mp, bcs_pcd=[bc_pcd1, bc_pcd2])
 problem = PCDNonlinearProblem(pcd_assembler)
 
 linear_solver = PCDKrylovSolver(comm=mesh.mpi_comm())
@@ -174,7 +166,7 @@ PETScOptions.set("fieldsplit_p_PCD_Ap_pc_type", "hypre")
 PETScOptions.set("fieldsplit_p_PCD_Ap_pc_hypre_type", "boomeramg")
 PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "chebyshev")
 PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_max_it", 5)
-PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.0")
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.5")
 #PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_esteig", "1,0,0,1")  # FIXME: What does it do?
 PETScOptions.set("fieldsplit_p_PCD_Mp_pc_type", "jacobi")
 
