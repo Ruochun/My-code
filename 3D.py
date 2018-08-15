@@ -107,9 +107,8 @@ elif args.pcd_variant == "BRM2":
 u, p = TrialFunctions(W)
 v, q = TestFunctions(W)
 w = Function(W)
-w0 = Function(W)
-u_, p_ = split(w)
-u0_, p0_ = split(w0)
+u_ = Function(V)
+uc = Function(V)
 
 h = CellDiameter(mesh)
 F = (
