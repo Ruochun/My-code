@@ -39,7 +39,7 @@ alpha_q = 0.1
 volfrac = 0.31
 
 parameters["form_compiler"]["quadrature_degree"] = 3
-mr = 10
+mr = 50
 mesh = BoxMesh(Point(0,0,0), Point(1,1,1), mr,mr,mr)
 
 
@@ -145,7 +145,8 @@ pcd_assembler = PCDAssembler(J, F, [bc0, bc1, bc2, bc3, bc4],
 problem = PCDNonlinearProblem(pcd_assembler)
 
 linear_solver = PCDKrylovSolver(comm=mesh.mpi_comm())
-linear_solver.parameters["relative_tolerance"] = 1e-6
+linear_solver.parameters["relative_tolerance"] = 1e-5
+linear_solver.parameters["absolute_tolerance"] = 1e-5
 PETScOptions.set("ksp_monitor")
 PETScOptions.set("ksp_gmres_restart", 150)
 
