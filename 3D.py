@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description=__doc__, formatter_class=
                                  argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--nu", type=float, dest="viscosity", default=0.02,
                     help="kinematic viscosity")
-parser.add_argument("--pcd", type=str, dest="pcd_variant", default="BRM1",
+parser.add_argument("--pcd", type=str, dest="pcd_variant", default="BRM2",
                     choices=["BRM1", "BRM2"], help="PCD variant")
 parser.add_argument("--nls", type=str, dest="nls", default="picard",
                     choices=["picard", "newton"], help="nonlinear solver")
@@ -166,10 +166,10 @@ PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_type", "richardson")
 PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_max_it", 2)
 PETScOptions.set("fieldsplit_p_PCD_Ap_pc_type", "hypre")
 PETScOptions.set("fieldsplit_p_PCD_Ap_pc_hypre_type", "boomeramg")
-#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "chebyshev")
-#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_max_it", 5)
-#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.5")
-#PETScOptions.set("fieldsplit_p_PCD_Mp_pc_type", "jacobi")
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "chebyshev")
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_max_it", 5)
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.5")
+PETScOptions.set("fieldsplit_p_PCD_Mp_pc_type", "jacobi")
 
 # Apply options
 linear_solver.set_from_options()
