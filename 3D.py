@@ -73,7 +73,9 @@ Gamma3().mark(boundary_markers, 3) # outlet facets01
 Gamma4().mark(boundary_markers, 4) # outlet facets02
 
 # Inlet velocity
-test1 = Expression("pow(x[1]-0.2,2)",degree=2)
+u1 = 2
+test2 = Expression("u1*pow(x[1]-0.2,2)",u1=u1,degree=2)
+test1 = Expression("u0*pow(x[1]-0.2,2)",u0=u0,degree=2)
 u_in1 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.8,2))"),u0=u0,degree=2)
 u_in2 = Expression(("0.0","0.0","4.*u0*(pow(0.1,2)-pow(x[0]-0.5,2)-pow(x[1]-0.2,2))"),u0=u0,degree=2)
 
