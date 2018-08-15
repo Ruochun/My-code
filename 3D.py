@@ -109,23 +109,21 @@ v, q = TestFunctions(W)
 w = Function(W)
 u_ = Function(V)
 uc = Function(V)
-
+vnorm = sqrt(dot(u_,u_))
 h = CellDiameter(mesh)
-F = (
+a = (
       alpha(gamma)*inner(u, v)
     + nu*inner(grad(u), grad(v))
     + inner(dot(grad(u), u_), v)
     - p*div(v)
     - q*div(u)
 )*dx
-
-vnorm = sqrt(dot(u_,u_))
 tau_supg = ( (2.0*vnorm/h)**2 + 9*(4.0*nu/h**2)**2 )**(-0.5)
 tau_pspg = h**2/2#tau_supg#
-tau_lsic = vnorm*h/2
 res = grad(u)*u_+grad(p)-div(nu*grad(u))
-F += tau_supg*inner(grad(v)*u_,res)*dx
-F += -tau_pspg*inner(grad(q),res)*dx
+
+a += tau_supg*inner(grad(v)*u_,res)*dx
+a += -tau_pspg*inner(grad(q),res)*dx
 
 f = Constant((0.0,0.0,0.0))
 L = inner(f,v)*dx
