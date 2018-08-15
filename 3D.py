@@ -125,8 +125,11 @@ tau_supg = ( (2.0*vnorm/h)**2 + 9*(4.0*nu/h**2)**2 )**(-0.5)
 tau_pspg = h**2/2#tau_supg#
 tau_lsic = vnorm*h/2
 res = grad(u)*u_+grad(p)-div(nu*grad(u))
+F += tau_supg*inner(grad(v)*u_,res)*dx
+F += -tau_pspg*inner(grad(q),res)*dx
 
-
+f = Constant((0.0,0.0,0.0))
+L = inner(f,v)*dx
 
 
 
