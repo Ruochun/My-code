@@ -96,6 +96,7 @@ tau_supg = ( (2.0*vnorm/h)**2 + 9*(4.0*nu/h**2)**2 )**(-0.5)
 tau_pspg = h**2/2#tau_supg#
 
 # Nonlinear equation
+"""
 F = (
       nu*inner(grad(u_), grad(v))
     + inner(dot(grad(u_), u_), v)
@@ -103,6 +104,13 @@ F = (
     - q*div(u_)
     + tau_supg*inner(grad(v)*u_,grad(u_)*u_+grad(p_)-div(nu*grad(u_)))
     - tau_pspg*inner(grad(q),grad(u_)*u_+grad(p_)-div(nu*grad(u_)))
+)*dx
+"""
+F = (
+      nu*inner(grad(u_), grad(v))
+    + inner(dot(grad(u_), u_), v)
+    - p_*div(v)
+    - q*div(u_)
 )*dx
 
 # Jacobian
@@ -112,12 +120,11 @@ if args.nls == "picard":
         + inner(dot(grad(u), u_), v)
         - p*div(v)
         - q*div(u)
-        + tau_supg*inner(grad(v)*u_,grad(u)*u_+grad(p)-div(nu*grad(u)))
-        - tau_pspg*inner(grad(q),grad(u)*u_+grad(p)-div(nu*grad(u)))
     )*dx
 elif args.nls == "newton":
     J = derivative(F, w)
-    
+J_pc = J + tau_supg*inner(grad(v)*u_,grad(u)*u_+grad(p)-div(nu*grad(u)))*dx\
+         - tau_pspg*inner(grad(q),grad(u)*u_+grad(p)-div(nu*grad(u)))*dx
 
 
 # PCD operators
@@ -130,7 +137,7 @@ if args.pcd_variant == "BRM2":
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
     
 pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
-                             ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
+                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
                              
 problem = PCDNonlinearProblem(pcd_assembler)
 
