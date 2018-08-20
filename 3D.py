@@ -142,7 +142,7 @@ L = inner(f,v)*dx
 
 #mu = alpha(gamma)*inner(u, v)*dx
 mp = Constant(1.0/nu)*p*q*dx
-kp = Constant(1.0/nu)*(alpha(gamma)*p + dot(grad(p), u_))*q*dx
+kp = Constant(1.0/nu)*(dot(grad(p), u_))*q*dx
 ap = inner(grad(p), grad(q))*dx
 
 if args.pcd_variant == "BRM2":
@@ -152,8 +152,8 @@ if args.pcd_variant == "BRM2":
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)+Constant(1.0/nu)*dot(u_, n)*p*q*ds(2)
     #kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(0)  # TODO: Is this beneficial?
 
-pcd_assembler = PCDAssembler(J_pc, F, [bc0, bc1, bc2, bc3, bc4],
-                             ap=ap, kp=kp, mp=mp, bcs_pcd=[bc_pcd1, bc_pcd2])
+pcd_assembler = PCDAssembler(J, F, [bc0, bc1, bc2, bc3, bc4],
+                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=[bc_pcd1, bc_pcd2])
 problem = PCDNonlinearProblem(pcd_assembler)
 
 linear_solver = PCDKrylovSolver(comm=mesh.mpi_comm())
