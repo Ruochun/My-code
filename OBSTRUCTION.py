@@ -128,7 +128,7 @@ PETScOptions.set("ksp_gmres_restart", 150)
 
 # Set up subsolvers
 PETScOptions.set("fieldsplit_p_pc_python_type", "fenapack.PCDPC_" + args.pcd_variant)
-"""
+
 PETScOptions.set("fieldsplit_u_ksp_type", "richardson")
 PETScOptions.set("fieldsplit_u_ksp_max_it", 1)
 PETScOptions.set("fieldsplit_u_pc_type", "hypre")
@@ -137,15 +137,14 @@ PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_type", "richardson")
 PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_max_it", 2)
 PETScOptions.set("fieldsplit_p_PCD_Ap_pc_type", "hypre")
 PETScOptions.set("fieldsplit_p_PCD_Ap_pc_hypre_type", "boomeramg")
-PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "chebyshev")
-PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "cg")
-PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_max_it", 5)
-PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.5")
-#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_esteig", "1,0,0,1")  # FIXME: What does it do?
-PETScOptions.set("fieldsplit_p_PCD_Mp_pc_type", "jacobi")
-"""
-PETScOptions.set("fieldsplit_u_mat_mumps_icntl_4", 2)
-PETScOptions.set("fieldsplit_p_PCD_Ap_mat_mumps_icntl_4", 2)
+#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "chebyshev")
+#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "cg")
+#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_max_it", 5)
+#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.5")
+#PETScOptions.set("fieldsplit_p_PCD_Mp_pc_type", "jacobi")
+
+#PETScOptions.set("fieldsplit_u_mat_mumps_icntl_4", 2)
+#PETScOptions.set("fieldsplit_p_PCD_Ap_mat_mumps_icntl_4", 2)
 PETScOptions.set("fieldsplit_p_PCD_Mp_mat_mumps_icntl_4", 2)
 
 # Apply options
