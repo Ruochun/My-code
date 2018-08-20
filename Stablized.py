@@ -111,7 +111,7 @@ if args.nls == "picard":
         - p*div(v)
         - q*div(u)
         + tau_supg*inner(grad(v)*u_,-div(nu*grad(u))+grad(p)+dot(grad(u),u_))
-        - tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
+        - tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))
     )*dx
 elif args.nls == "newton":
     J = derivative(F, w)
