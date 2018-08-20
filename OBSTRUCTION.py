@@ -76,3 +76,81 @@ bc0 = DirichletBC(W.sub(0), (0.0, 0.0, 0.0), boundary_markers, 0)
 inflow = Expression(("0.0", "0.0", "2.0*U0*(0.75-x[0])*(0.75+x[0])*(1.5-x[1])*(1.5+x[1])/(0.75*0.75*1.5*1.5)"), U0=U0,degree=4)
 bc1 = DirichletBC(W.sub(0), inflow, boundary_markers, 1)
 
+# Arguments and coefficients of the form
+u, p = TrialFunctions(W)
+v, q = TestFunctions(W)
+w = Function(W)
+u_, p_ = split(w)
+
+# Nonlinear equation
+F = (
+      nu*inner(grad(u_), grad(v))
+    + inner(dot(grad(u_), u_), v)
+    - p_*div(v)
+    - q*div(u_)
+)*dx
+
+# Jacobian
+if args.nls == "picard":
+    J = (
+          nu*inner(grad(u), grad(v))
+        + inner(dot(grad(u), u_), v)
+        - p*div(v)
+        - q*div(u)
+    )*dx
+elif args.nls == "newton":
+    J = derivative(F, w)
+    
+# PCD operators
+mp = Constant(1.0/nu)*p*q*dx
+kp = Constant(1.0/nu)*dot(grad(p), u_)*q*dx
+ap = inner(grad(p), grad(q))*dx
+if args.pcd_variant == "BRM2":
+    n = FacetNormal(mesh)
+    ds = Measure("ds", subdomain_data=boundary_markers)
+    kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
+    
+pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
+                             ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
+problem = PCDNonlinearProblem(pcd_assembler)
+
+# Set up linear solver (GMRES with right preconditioning using Schur fact)
+linear_solver = PCDKrylovSolver(comm=mesh.mpi_comm())
+linear_solver.parameters["relative_tolerance"] = 1e-6
+PETScOptions.set("ksp_monitor")
+PETScOptions.set("ksp_gmres_restart", 150)
+
+# Set up subsolvers
+PETScOptions.set("fieldsplit_p_pc_python_type", "fenapack.PCDPC_" + args.pcd_variant)
+
+PETScOptions.set("fieldsplit_u_ksp_type", "richardson")
+PETScOptions.set("fieldsplit_u_ksp_max_it", 1)
+PETScOptions.set("fieldsplit_u_pc_type", "hypre")
+PETScOptions.set("fieldsplit_u_pc_hypre_type", "boomeramg")
+PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_type", "richardson")
+PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_max_it", 2)
+PETScOptions.set("fieldsplit_p_PCD_Ap_pc_type", "hypre")
+PETScOptions.set("fieldsplit_p_PCD_Ap_pc_hypre_type", "boomeramg")
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_type", "chebyshev")
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_max_it", 5)
+PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_eigenvalues", "0.5, 2.5")
+#PETScOptions.set("fieldsplit_p_PCD_Mp_ksp_chebyshev_esteig", "1,0,0,1")  # FIXME: What does it do?
+PETScOptions.set("fieldsplit_p_PCD_Mp_pc_type", "jacobi")
+
+# Apply options
+linear_solver.set_from_options()
+
+# Set up nonlinear solver
+solver = PCDNewtonSolver(linear_solver)
+solver.parameters["relative_tolerance"] = 1e-5
+
+# Solve problem
+solver.solve(problem, w.vector())
+
+# Report timings
+list_timings(TimingClear.clear, [TimingType.wall, TimingType.user])
+
+# Plot solution
+u, p = w.split()
+size = MPI.size(mesh.mpi_comm())
+rank = MPI.rank(mesh.mpi_comm())
