@@ -8,7 +8,7 @@ from fenapack import StabilizationParameterSD
 
 import argparse, sys, os
 
-
+parameters["form_compiler"]["quadrature_degree"] = 3
 # Parse input arguments
 parser = argparse.ArgumentParser(description=__doc__, formatter_class=
                                  argparse.ArgumentDefaultsHelpFormatter)
@@ -101,6 +101,8 @@ F = (
     + inner(dot(grad(u_), u_), v)
     - p_*div(v)
     - q*div(u_)
+    + tau_supg*inner(grad(v)*u_,-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))
+    - tau_pspg*inner(grad(q),-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))
 )*dx
 
 # Jacobian
