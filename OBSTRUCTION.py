@@ -76,6 +76,12 @@ bc0 = DirichletBC(W.sub(0), (0.0, 0.0, 0.0), boundary_markers, 0)
 inflow = Expression(("0.0", "0.0", "2.0*U0*(0.75-x[0])*(0.75+x[0])*(1.5-x[1])*(1.5+x[1])/(0.75*0.75*1.5*1.5)"), U0=U0,degree=4)
 bc1 = DirichletBC(W.sub(0), inflow, boundary_markers, 1)
 
+# Artificial BC for PCD preconditioner
+if args.pcd_variant == "BRM1":
+    bc_pcd = DirichletBC(W.sub(1), 0.0, boundary_markers, 1)
+elif args.pcd_variant == "BRM2":
+    bc_pcd = DirichletBC(W.sub(1), 0.0, boundary_markers, 2)
+
 # Arguments and coefficients of the form
 u, p = TrialFunctions(W)
 v, q = TestFunctions(W)
