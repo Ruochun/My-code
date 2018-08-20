@@ -121,7 +121,11 @@ F = (
     - p_*div(v)
     - q*div(u_)
 )*dx
-
+tau_supg = ( (2.0*vnorm/h)**2 + 9*(4.0*nu/h**2)**2 )**(-0.5)
+tau_pspg = h**2/2#tau_supg#
+res1 = grad(u_)*u_+grad(p_)-div(nu*grad(u_))
+F += tau_supg*inner(grad(v)*u_,res1)*dx
+F += -tau_pspg*inner(grad(q),res1)*dx
 J = (
           nu*inner(grad(u), grad(v))
         + inner(dot(grad(u), u_), v)
@@ -152,8 +156,8 @@ if args.pcd_variant == "BRM2":
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)+Constant(1.0/nu)*dot(u_, n)*p*q*ds(2)
     #kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(0)  # TODO: Is this beneficial?
 
-pcd_assembler = PCDAssembler(J, F, [bc0, bc1, bc2, bc3, bc4],
-                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=[bc_pcd1, bc_pcd2])
+pcd_assembler = PCDAssembler(J_pc, F, [bc0, bc1, bc2, bc3, bc4],
+                             ap=ap, kp=kp, mp=mp, bcs_pcd=[bc_pcd1, bc_pcd2])
 problem = PCDNonlinearProblem(pcd_assembler)
 
 linear_solver = PCDKrylovSolver(comm=mesh.mpi_comm())
