@@ -101,8 +101,6 @@ F = (
     + inner(dot(grad(u_), u_), v)
     - p_*div(v)
     - q*div(u_)
-    + tau_supg*inner(grad(v)*u_,-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))
-    - tau_pspg*inner(grad(q),-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))*dx
 )*dx
 
 # Jacobian
@@ -112,8 +110,8 @@ if args.nls == "picard":
         + inner(dot(grad(u), u_), v)
         - p*div(v)
         - q*div(u)
-        + tau_supg*inner(grad(v)*u_,-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))
-        - tau_pspg*inner(grad(q),-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))*dx
+        + tau_supg*inner(grad(v)*u_,-div(nu*grad(u))+grad(p)+dot(grad(u),u_))
+        - tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
     )*dx
 elif args.nls == "newton":
     J = derivative(F, w)
