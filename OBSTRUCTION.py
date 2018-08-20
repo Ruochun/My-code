@@ -58,7 +58,21 @@ P2 = VectorElement("Lagrange", mesh.ufl_cell(), 2)
 P1 = FiniteElement("Lagrange", mesh.ufl_cell(), 1)
 W = FunctionSpace(mesh, P2*P1)
 
+Re = 50
+nu = Constant(args.viscosity)
+Dh = 4*0.75*2*1.5*2/(0.75*2*2+1.5*2*2)
+U0 = Re*nu/Dh
+
 # Provide some info about the current problem
 info("Dimension of the function space: %g" % W.dim())
 info("DOF of velocity: %g" % W.sub(0).dim())
 info("DOF of pressure: %g" % W.sub(1).dim())
+info("Reynolds number: %g" % Re)
+
+# No-slip BC
+bc0 = DirichletBC(W.sub(0), (0.0, 0.0, 0.0), boundary_markers, 0)
+
+# Parabolic inflow BC
+inflow = Expression(("0.0", "0.0", "2.0*U0*(0.75-x[0])*(0.75+x[0])*(1.5-x[1])*(1.5+x[1])/(0.75*0.75*1.5*1.5)"), U0=U0,degree=4)
+bc1 = DirichletBC(W.sub(0), inflow, boundary_markers, 1)
+
