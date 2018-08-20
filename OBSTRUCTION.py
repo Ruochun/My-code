@@ -15,8 +15,8 @@ parser = argparse.ArgumentParser(description=__doc__, formatter_class=
 parser.add_argument("-l", type=int, dest="level", default=1,
                     help="level of mesh refinement")
 
-parser.add_argument("--nu", type=float, dest="viscosity", default=0.1,
-                    help="kinematic viscosity")
+#parser.add_argument("--nu", type=float, dest="viscosity", default=0.1,
+#                    help="kinematic viscosity")
 
 parser.add_argument("--pcd", type=str, dest="pcd_variant", default="BRM2",
                     choices=["BRM1", "BRM2"], help="PCD variant")
@@ -59,7 +59,7 @@ P1 = FiniteElement("Lagrange", mesh.ufl_cell(), 1)
 W = FunctionSpace(mesh, P2*P1)
 
 Re = 50
-nu = Constant(args.viscosity)
+nu = 0.1#Constant(args.viscosity)
 Dh = 4*0.75*2*1.5*2/(0.75*2*2+1.5*2*2)
 U0 = Re*nu/Dh
 
