@@ -61,7 +61,7 @@ P1 = FiniteElement("Lagrange", mesh.ufl_cell(), 1)
 W = FunctionSpace(mesh, P2*P1)
 
 Re = 50
-nu = 0.1#Constant(args.viscosity)
+nu = 0.01#Constant(args.viscosity)
 Dh = 4*0.75*2*1.5*2/(0.75*2*2+1.5*2*2)
 U0 = Re*nu/Dh
 
@@ -143,17 +143,19 @@ problem = PCDNonlinearProblem(pcd_assembler)
 
 # Set up linear solver (GMRES with right preconditioning using Schur fact)
 linear_solver = PCDKrylovSolver(comm=mesh.mpi_comm())
-linear_solver.parameters["relative_tolerance"] = 1e-6
+linear_solver.parameters["relative_tolerance"] = 1e-5
 PETScOptions.set("ksp_monitor")
 PETScOptions.set("ksp_gmres_restart", 150)
 
 # Set up subsolvers
 PETScOptions.set("fieldsplit_p_pc_python_type", "fenapack.PCDPC_" + args.pcd_variant)
 
-#PETScOptions.set("fieldsplit_u_ksp_type", "richardson")
-#PETScOptions.set("fieldsplit_u_ksp_max_it", 1)
-#PETScOptions.set("fieldsplit_u_pc_type", "hypre")
-#PETScOptions.set("fieldsplit_u_pc_hypre_type", "boomeramg")
+PETScOptions.set("fieldsplit_u_ksp_type", "gmres")
+PETScOptions.set("fieldsplit_u_ksp_max_it", 1)
+PETScOptions.set("fieldsplit_u_pc_type", "hypre")
+PETScOptions.set("fieldsplit_u_pc_hypre_type", "boomeramg")
+PETScOptions.set("fieldsplit_u_pc_hypre_boomeramg_max_levels": 4)
+
 PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_type", "gmres")
 PETScOptions.set("fieldsplit_p_PCD_Ap_ksp_max_it", 2)
 PETScOptions.set("fieldsplit_p_PCD_Ap_pc_type", "hypre")
