@@ -100,9 +100,7 @@ F = (
       nu*inner(grad(u_), grad(v))
     + inner(dot(grad(u_), u_), v)
     - p_*div(v)
-    + q*div(u_)
-    + tau_supg*inner(grad(v)*u_,-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))
-    + tau_pspg*inner(grad(q),-div(nu*grad(u_))+grad(p_)+dot(grad(u_),u_))
+    - q*div(u_)
 )*dx
 
 # Jacobian
@@ -111,15 +109,15 @@ if args.nls == "picard":
           nu*inner(grad(u), grad(v))
         + inner(dot(grad(u), u_), v)
         - p*div(v)
-        + q*div(u)
-        + tau_supg*inner(grad(v)*u_,-div(nu*grad(u))+grad(p)+dot(grad(u),u_))
-        + tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))
+        - q*div(u)
     )*dx
 elif args.nls == "newton":
     J = derivative(F, w)
     
-f = Constant((0.0,0.0,0.0))
-L = inner(f,v)*dx
+J_pc = J\
++ tau_supg*inner(grad(v)*u_,-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
++ tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
+
 
 # PCD operators
 mp = Constant(1.0/nu)*p*q*dx
@@ -131,7 +129,7 @@ if args.pcd_variant == "BRM2":
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
     
 pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
-                             ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
+                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
                              
 problem = PCDNonlinearProblem(pcd_assembler)
 
