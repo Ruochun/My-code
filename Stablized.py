@@ -130,7 +130,7 @@ if args.pcd_variant == "BRM2":
     ds = Measure("ds", subdomain_data=boundary_markers)
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
     
-pcd_assembler = PCDAssembler(J, L, [bc0, bc1],
+pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
                              ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
                              
 problem = PCDNonlinearProblem(pcd_assembler)
