@@ -21,7 +21,7 @@ parser.add_argument("-l", type=int, dest="level", default=1,
 parser.add_argument("--pcd", type=str, dest="pcd_variant", default="BRM2",
                     choices=["BRM1", "BRM2"], help="PCD variant")
 
-parser.add_argument("--nls", type=str, dest="nls", default="newton",
+parser.add_argument("--nls", type=str, dest="nls", default="picard",
                     choices=["picard", "newton"], help="nonlinear solver")
 args = parser.parse_args(sys.argv[1:])
 
@@ -116,8 +116,10 @@ elif args.nls == "newton":
     
 J_pc = J\
 + tau_supg*inner(grad(v)*u_,-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
-+ tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
+- tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
 
+f = Constant((0.0,0.0,0.0))
+L = inner(f,v)*dx
 
 # PCD operators
 mp = Constant(1.0/nu)*p*q*dx
@@ -128,8 +130,8 @@ if args.pcd_variant == "BRM2":
     ds = Measure("ds", subdomain_data=boundary_markers)
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
     
-pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
-                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
+pcd_assembler = PCDAssembler(J_pc, L, [bc0, bc1],
+                             ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
                              
 problem = PCDNonlinearProblem(pcd_assembler)
 
