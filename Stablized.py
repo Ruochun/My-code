@@ -123,8 +123,8 @@ if args.nls == "picard":
     )*dx
 elif args.nls == "newton":
     J = derivative(F, w)
-J_pc = J + tau_supg*inner(grad(v)*u_,grad(u)*u_+grad(p)-div(nu*grad(u)))*dx\
-         - tau_pspg*inner(grad(q),grad(u)*u_+grad(p)-div(nu*grad(u)))*dx
+J = J + tau_supg*inner(grad(v)*u_,grad(u)*u_+grad(p)-div(nu*grad(u)))*dx\
+      - tau_pspg*inner(grad(q),grad(u)*u_+grad(p)-div(nu*grad(u)))*dx
 
 
 # PCD operators
@@ -137,7 +137,7 @@ if args.pcd_variant == "BRM2":
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
     
 pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
-                             J_pc, ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
+                             ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
                              
 problem = PCDNonlinearProblem(pcd_assembler)
 
