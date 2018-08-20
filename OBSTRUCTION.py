@@ -23,6 +23,7 @@ parser.add_argument("--pcd", type=str, dest="pcd_variant", default="BRM2",
 
 parser.add_argument("--nls", type=str, dest="nls", default="newton",
                     choices=["picard", "newton"], help="nonlinear solver")
+args = parser.parse_args(sys.argv[1:])
 
 # create mesh
 from mshr import *
