@@ -96,7 +96,7 @@ tau_supg = ( (2.0*vnorm/h)**2 + 9*(4.0*nu/h**2)**2 )**(-0.5)
 tau_pspg = h**2/2#tau_supg#
 
 # Nonlinear equation
-"""
+
 F = (
       nu*inner(grad(u_), grad(v))
     + inner(dot(grad(u_), u_), v)
@@ -112,7 +112,7 @@ F = (
     - p_*div(v)
     - q*div(u_)
 )*dx
-
+"""
 # Jacobian
 if args.nls == "picard":
     J = (
@@ -185,3 +185,4 @@ list_timings(TimingClear.clear, [TimingType.wall, TimingType.user])
 u, p = w.split()
 size = MPI.size(mesh.mpi_comm())
 rank = MPI.rank(mesh.mpi_comm())
+File('result/velocity.pvd')<<u
