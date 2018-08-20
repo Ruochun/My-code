@@ -101,6 +101,8 @@ F = (
     + inner(dot(grad(u_), u_), v)
     - p_*div(v)
     - q*div(u_)
+    + tau_supg*inner(grad(v)*u_,grad(u_)*u_+grad(p_)-div(nu*grad(u_)))
+    - tau_pspg*inner(grad(q),grad(u_)*u_+grad(p_)-div(nu*grad(u_)))
 )*dx
 
 # Jacobian
@@ -110,16 +112,13 @@ if args.nls == "picard":
         + inner(dot(grad(u), u_), v)
         - p*div(v)
         - q*div(u)
+        + tau_supg*inner(grad(v)*u_,grad(u)*u_+grad(p)-div(nu*grad(u)))
+        - tau_pspg*inner(grad(q),grad(u)*u_+grad(p)-div(nu*grad(u)))
     )*dx
 elif args.nls == "newton":
     J = derivative(F, w)
     
-J_pc = J\
-+ tau_supg*inner(grad(v)*u_,-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
-- tau_pspg*inner(grad(q),-div(nu*grad(u))+grad(p)+dot(grad(u),u_))*dx
 
-f = Constant((0.0,0.0,0.0))
-L = inner(f,v)*dx
 
 # PCD operators
 mp = Constant(1.0/nu)*p*q*dx
@@ -130,7 +129,7 @@ if args.pcd_variant == "BRM2":
     ds = Measure("ds", subdomain_data=boundary_markers)
     kp -= Constant(1.0/nu)*dot(u_, n)*p*q*ds(1)
     
-pcd_assembler = PCDAssembler(J_pc, L, [bc0, bc1],
+pcd_assembler = PCDAssembler(J, F, [bc0, bc1],
                              ap=ap, kp=kp, mp=mp, bcs_pcd=bc_pcd)
                              
 problem = PCDNonlinearProblem(pcd_assembler)
